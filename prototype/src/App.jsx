@@ -1,11 +1,15 @@
+import { useState } from "react";
 import StatsOverview from "./components/StatsOverview";
 import WaterLevelChart from "./components/WaterLevelChart";
 import SensorTable from "./components/SensorTable";
 import AlertsPanel from "./components/AlertsPanel";
 import SensorMap from "./components/SensorMap";
+import Quiz from "./components/Quiz";
 import "./App.css";
 
 export default function App() {
+  const [page, setPage] = useState("dashboard");
+
   return (
     <div className="app">
       <header className="app-header">
@@ -17,6 +21,20 @@ export default function App() {
           </div>
         </div>
         <div className="header-info">
+          <nav className="header-nav">
+            <button
+              className={`nav-btn ${page === "dashboard" ? "nav-active" : ""}`}
+              onClick={() => setPage("dashboard")}
+            >
+              📊 Dashboard
+            </button>
+            <button
+              className={`nav-btn ${page === "quiz" ? "nav-active" : ""}`}
+              onClick={() => setPage("quiz")}
+            >
+              📝 QCM Innovation
+            </button>
+          </nav>
           <span className="badge badge-online">Système actif</span>
           <span className="header-date">
             {new Date().toLocaleDateString("fr-FR", {
@@ -30,20 +48,26 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        <StatsOverview />
+        {page === "dashboard" ? (
+          <>
+            <StatsOverview />
 
-        <div className="two-columns">
-          <div className="col-main">
-            <WaterLevelChart />
-          </div>
-          <div className="col-side">
-            <SensorMap />
-          </div>
-        </div>
+            <div className="two-columns">
+              <div className="col-main">
+                <WaterLevelChart />
+              </div>
+              <div className="col-side">
+                <SensorMap />
+              </div>
+            </div>
 
-        <SensorTable />
+            <SensorTable />
 
-        <AlertsPanel />
+            <AlertsPanel />
+          </>
+        ) : (
+          <Quiz />
+        )}
       </main>
 
       <footer className="app-footer">

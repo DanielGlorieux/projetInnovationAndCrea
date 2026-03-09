@@ -2,6 +2,36 @@
    AquaIA Dashboard Styles
    ============================ */
 
+/* Header Navigation */
+.header-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.nav-btn:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.nav-active {
+  background: rgba(0, 155, 214, 0.15);
+  border-color: var(--accent-blue);
+  color: var(--accent-teal);
+}
+
 /* Stats Grid */
 .stats-grid {
   display: grid;
