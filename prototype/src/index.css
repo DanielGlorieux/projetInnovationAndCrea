@@ -1,0 +1,117 @@
+/* ============================
+   AquaIA — Global Styles
+   ============================ */
+
+:root {
+  --bg-primary: #0d1b2a;
+  --bg-secondary: #1a2e4a;
+  --bg-card: #152238;
+  --text-primary: #e8f0f8;
+  --text-secondary: #8899aa;
+  --accent-blue: #009bd6;
+  --accent-teal: #26c6da;
+  --accent-gold: #f5c518;
+  --green: #43a047;
+  --red: #e53935;
+  --yellow: #f9a825;
+  --border-color: #1e3450;
+  --radius: 10px;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', 'Calibri', system-ui, -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-width: 320px;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.app-header {
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--accent-blue);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  font-size: 2rem;
+}
+
+.header-brand h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-teal);
+  letter-spacing: 1px;
+}
+
+.header-brand p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-date {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* Main */
+.app-main {
+  flex: 1;
+  padding: 24px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Footer */
+.app-footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 16px 32px;
+  text-align: center;
+}
+
+.app-footer p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.app-footer p:first-child {
+  color: var(--accent-teal);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
