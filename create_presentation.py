@@ -30,7 +30,7 @@ TEXT_YELLOW = RGBColor(0xFF, 0xD7, 0x00)
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 PPTX_PATH = os.path.join(OUTPUT_DIR, "presentation_ivf.pptx")
 
-# Slide dimensions (16:9 widescreen)
+# Slide dimensions: 16:9 widescreen aspect ratio in inches
 SLIDE_WIDTH = Inches(13.333)
 SLIDE_HEIGHT = Inches(7.5)
 
@@ -265,6 +265,7 @@ def create_clustering_slide(prs):
         # Cluster circle
         cluster = slide.shapes.add_shape(MSO_SHAPE.OVAL, cx, cy, Inches(1.8), Inches(1.2))
         cluster.fill.solid()
+        # Darken the cluster color to ~20% brightness for the fill background
         cluster.fill.fore_color.rgb = RGBColor(
             min(color[0] + 20, 255) // 5,
             min(color[1] + 20, 255) // 5,
@@ -290,8 +291,8 @@ def create_clustering_slide(prs):
     box = add_shape_rect(slide, Inches(0.8), Inches(5.8), Inches(11.5), Inches(1),
                          RGBColor(0x1E, 0x2D, 0x50), ACCENT_BLUE)
     add_text_box(slide, Inches(1.2), Inches(5.9), Inches(10.8), Inches(0.8),
-                 "💡 Le paramètre 'nlist' détermine le nombre de clusters. "
-                 "Typiquement : nlist = √n  où n est le nombre total de vecteurs.",
+                 "Le parametre 'nlist' determine le nombre de clusters. "
+                 "Typiquement : nlist = sqrt(n) ou n est le nombre total de vecteurs.",
                  font_size=15, color=TEXT_YELLOW)
 
 
@@ -520,7 +521,7 @@ def create_parameters_slide(prs):
     add_bullet_points(slide, Inches(1.2), Inches(3.2), Inches(4.8), Inches(2.5), [
         "Détermine combien de clusters sont créés lors de l'indexation",
         "Plus de clusters = posting lists plus petites",
-        "Valeur typique : nlist ≈ √n",
+        "Valeur typique : nlist = sqrt(n)",
         "Influence la granularité de la partition",
         "Doit être ajusté selon la taille du dataset",
     ], font_size=13, color=TEXT_LIGHT)

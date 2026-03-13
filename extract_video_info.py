@@ -28,7 +28,11 @@ VIDEO_PATH = os.path.join(
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 KEY_FRAMES_DIR = os.path.join(OUTPUT_DIR, "key_frames")
 EXTRACTION_INTERVAL_SEC = 5
+# Jaccard similarity threshold: texts with > 80% word overlap are considered duplicates.
+# Lower values = more sections retained; higher values = more aggressive deduplication.
 DUPLICATE_TEXT_THRESHOLD = 0.80
+# Minimum number of characters for a text block to be considered meaningful (filters OCR noise)
+MIN_TEXT_LENGTH = 15
 
 
 def ensure_dirs():
@@ -111,7 +115,7 @@ def extract_frames_and_ocr(video_path):
     unique_sections = []
     prev_text = ""
     for frame_info in all_frames:
-        if frame_info["text"] and len(frame_info["text"]) > 15:
+        if frame_info["text"] and len(frame_info["text"]) > MIN_TEXT_LENGTH:
             sim = text_similarity(frame_info["text"], prev_text)
             if sim < DUPLICATE_TEXT_THRESHOLD:
                 unique_sections.append(frame_info)
