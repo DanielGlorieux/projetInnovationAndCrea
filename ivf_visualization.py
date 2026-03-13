@@ -238,7 +238,7 @@ class IVFSimulator:
         # --- Boutons ---
         ax_regen = self.fig.add_axes([0.55, 0.12, 0.12, 0.04])
         self.btn_regenerate = Button(
-            ax_regen, "Regenerer", color="#0f3460", hovercolor="#e94560"
+            ax_regen, "Régénérer", color="#0f3460", hovercolor="#e94560"
         )
         self.btn_regenerate.on_clicked(self._on_regenerate)
         self.btn_regenerate.label.set_color("white")
@@ -246,7 +246,7 @@ class IVFSimulator:
 
         ax_reset = self.fig.add_axes([0.55, 0.07, 0.12, 0.04])
         self.btn_reset_query = Button(
-            ax_reset, "Reset Requete", color="#0f3460", hovercolor="#e94560"
+            ax_reset, "Reset Requête", color="#0f3460", hovercolor="#e94560"
         )
         self.btn_reset_query.on_clicked(self._on_reset_query)
         self.btn_reset_query.label.set_color("white")
@@ -274,7 +274,7 @@ class IVFSimulator:
         self.fig.text(
             0.32,
             0.935,
-            "Cliquez dans la zone pour placer un vecteur requete",
+            "Cliquez dans la zone pour placer un vecteur requête",
             ha="center",
             va="center",
             fontsize=10,
@@ -732,7 +732,7 @@ class IVFSimulator:
                 ax.text(
                     0.5,
                     y,
-                    f"  Economies : {100 - explored_pct:.1f}% des comparaisons evitees",
+                    f"  Économies : {100 - explored_pct:.1f}% des comparaisons évitées",
                     fontsize=9,
                     color="white",
                 )
@@ -765,7 +765,7 @@ class IVFSimulator:
             ax.text(
                 0.5,
                 y,
-                "  un vecteur requete.",
+                "  un vecteur requête.",
                 fontsize=9,
                 color="#aaaaaa",
             )
@@ -783,14 +783,14 @@ class IVFSimulator:
             y -= 0.6
             instructions = [
                 "1. Ajustez nlist pour le clustering",
-                "2. Cliquez pour placer une requete",
+                "2. Cliquez pour placer une requête",
                 "3. Modifiez nprobe pour explorer",
                 "   plus ou moins de clusters",
                 "4. Observez le recall et les",
                 "   economies de calcul",
                 "",
                 "Regenerer : nouvelles donnees",
-                "Reset : effacer la requete",
+                "Reset : effacer la requête",
                 "Brute Force : nprobe = nlist",
             ]
             for inst in instructions:
@@ -888,7 +888,7 @@ def main():
     print("=" * 60)
     print()
     print("Instructions :")
-    print("  - Cliquez dans la zone pour placer un vecteur requete")
+    print("  - Cliquez dans la zone pour placer un vecteur requête")
     print("  - Ajustez les sliders (nlist, nprobe, top-k)")
     print("  - Observez le fonctionnement de l'algorithme IVF")
     print()
