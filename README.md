@@ -50,6 +50,31 @@ python3 create_presentation.py
 **Sortie :**
 - `output/presentation_ivf.pptx` : Présentation PowerPoint importable dans Canva
 
+### 3. `ivf_visualization.py` - Visualisation Interactive & Simulateur
+
+Visualisation interactive et simulateur de l'algorithme IVF avec matplotlib. Permet de comprendre visuellement le fonctionnement de l'indexation et de la recherche.
+
+```bash
+python3 ivf_visualization.py
+```
+
+**Fonctionnalités :**
+- **Espace vectoriel 2D** : Affiche les vecteurs colorés par cluster avec régions de Voronoi
+- **Sliders interactifs** :
+  - `nlist` : Nombre de clusters (ajuste le partitionnement K-means)
+  - `nprobe` : Nombre de clusters explorés lors d'une recherche
+  - `top-k` : Nombre de résultats à retourner
+- **Clic pour requête** : Cliquez n'importe où dans la zone pour placer un vecteur requête et voir la recherche en action
+- **Visualisation de la recherche** :
+  - Clusters explorés surlignés en jaune
+  - Candidats entourés en cyan
+  - Top-k résultats en diamants verts avec lignes de distance
+- **Panneau d'information** : Posting lists, résultats, recall vs brute force, et économies de calcul
+- **Boutons** :
+  - `Régénérer` : Générer de nouvelles données aléatoires
+  - `Reset Requête` : Effacer le vecteur requête
+  - `Brute Force` : Mettre nprobe = nlist pour comparaison
+
 ### Importer dans Canva
 
 1. Aller sur [https://www.canva.com/](https://www.canva.com/)
@@ -75,7 +100,8 @@ python3 create_presentation.py
 ## Prérequis
 
 - Python 3.8+
-- Tesseract OCR (`apt install tesseract-ocr`)
+- Tesseract OCR (`apt install tesseract-ocr`) - pour l'extraction vidéo uniquement
+- Un environnement graphique (Tk, Qt) - pour la visualisation interactive
 - Dépendances Python : voir `requirements.txt`
 
 ## Source
