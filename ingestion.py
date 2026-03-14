@@ -1,141 +1,198 @@
-import asyncio
+import json
+import logging
 import os
-import ssl
+import sys
 from typing import Any, Dict, List
 
-import certifi
 from dotenv import load_dotenv
-from langchain_chroma import Chroma
-from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
-from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
-from langchain_pinecone import PineconeVectorStore
-from langchain_tavily import TavilyCrawl, TavilyExtract, TavilyMap
-
-from logger import (Colors, log_error, log_header, log_info, log_success,
-                    log_warning)
+from pinecone import Pinecone
 
 load_dotenv()
 
-# Configure SSL context to use certifi certificates
-ssl_context = ssl.create_default_context(cafile=certifi.where())
-os.environ["SSL_CERT_FILE"] = certifi.where()
-os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
-
-
-embeddings = OpenAIEmbeddings(
-    model="text-embedding-3-small",
-    show_progress_bar=False,
-    chunk_size=50,
-    retry_min_seconds=10,
+# ---------------------------------------------------------------------------
+# Logging configuration
+# ---------------------------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(levelname)-8s  %(message)s",
+    datefmt="%H:%M:%S",
 )
-vectorstore = Chroma(persist_directory="chroma_db", embedding_function=embeddings)
-# vectorstore = PineconeVectorStore(
-#     index_name="langchain-docs-2025", embedding=embeddings
-# )
-tavily_extract = TavilyExtract()
-tavily_map = TavilyMap(max_depth=5, max_breadth=20, max_pages=1000)
-tavily_crawl = TavilyCrawl()
+log = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Pinecone configuration
+# ---------------------------------------------------------------------------
+PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY", "")
+PINECONE_INDEX_NAME = "proj-rag"
+# The Pinecone index is configured with multilingual-e5-large integrated
+# inference (dimension=1024, metric=cosine). Pinecone generates the
+# embeddings server-side so no external embedding API is required.
+EMBEDDING_MODEL = "multilingual-e5-large"
+
+# Ingestion tuning
+EMBED_BATCH_SIZE = 96  # texts per embedding request (Pinecone inference limit)
+UPSERT_BATCH_SIZE = 100  # vectors per upsert request
 
 
-async def index_documents_async(documents: List[Document], batch_size: int = 50):
-    """Process documents in batches asynchronously."""
-    log_header("VECTOR STORAGE PHASE")
-    log_info(
-        f"📚 VectorStore Indexing: Preparing to add {len(documents)} documents to vector store",
-        Colors.DARKCYAN,
-    )
+def load_chunks(path: str) -> List[Dict[str, Any]]:
+    """Load chunks from a JSONL file, skipping malformed lines."""
+    chunks: List[Dict[str, Any]] = []
+    with open(path, "r", encoding="utf-8") as fh:
+        for lineno, raw_line in enumerate(fh, start=1):
+            line = raw_line.strip()
+            if not line:
+                continue
+            # Handle possible non-JSON prefix on a line (e.g. BOM or stray text)
+            idx = line.find("{")
+            if idx == -1:
+                log.warning("Skipping line %d – no JSON object found", lineno)
+                continue
+            try:
+                obj = json.loads(line[idx:])
+                chunks.append(obj)
+            except json.JSONDecodeError as exc:
+                log.warning("Skipping line %d – %s", lineno, exc)
+    return chunks
 
-    # Create batches
-    batches = [
-        documents[i : i + batch_size] for i in range(0, len(documents), batch_size)
-    ]
 
-    log_info(
-        f"📦 VectorStore Indexing: Split into {len(batches)} batches of {batch_size} documents each"
-    )
+def load_manifest(path: str) -> Dict[str, Dict[str, Any]]:
+    """Load the document manifest into a dict keyed by document_id."""
+    manifest: Dict[str, Dict[str, Any]] = {}
+    with open(path, "r", encoding="utf-8") as fh:
+        for lineno, raw_line in enumerate(fh, start=1):
+            line = raw_line.strip()
+            if not line:
+                continue
+            idx = line.find("{")
+            if idx == -1:
+                continue
+            try:
+                obj = json.loads(line[idx:])
+                manifest[obj["document_id"]] = obj
+            except (json.JSONDecodeError, KeyError) as exc:
+                log.warning("Manifest line %d skipped – %s", lineno, exc)
+    return manifest
 
-    # Process all batches concurrently
-    async def add_batch(batch: List[Document], batch_num: int):
+
+def build_metadata(chunk: Dict[str, Any]) -> Dict[str, Any]:
+    """Build the metadata dict stored alongside each vector in Pinecone."""
+    return {
+        "document_id": chunk.get("document_id", ""),
+        "source_site": chunk.get("source_site", ""),
+        "source_url": chunk.get("source_url", ""),
+        "filename": chunk.get("filename", ""),
+        "page_number": chunk.get("page_number", 0),
+        "chunk_index_in_page": chunk.get("chunk_index_in_page", 0),
+        "text": chunk.get("text", ""),
+    }
+
+
+def ingest(chunks_path: str, manifest_path: str) -> None:
+    """Main ingestion pipeline: read local JSONL data → embed → upsert to Pinecone."""
+
+    if not PINECONE_API_KEY:
+        log.error("PINECONE_API_KEY is not set. Please configure your .env file.")
+        sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # 1. Load local data
+    # ------------------------------------------------------------------
+    log.info("=" * 60)
+    log.info("LOADING LOCAL DATA")
+    log.info("=" * 60)
+
+    manifest = load_manifest(manifest_path)
+    log.info("📄  Manifest loaded: %d documents", len(manifest))
+
+    chunks = load_chunks(chunks_path)
+    log.info("📄  Chunks loaded: %d chunks", len(chunks))
+
+    if not chunks:
+        log.warning("No chunks to ingest – exiting.")
+        return
+
+    # ------------------------------------------------------------------
+    # 2. Connect to Pinecone
+    # ------------------------------------------------------------------
+    log.info("=" * 60)
+    log.info("CONNECTING TO PINECONE")
+    log.info("=" * 60)
+
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    index = pc.Index(PINECONE_INDEX_NAME)
+    log.info("✅  Connected to Pinecone index '%s'", PINECONE_INDEX_NAME)
+
+    # ------------------------------------------------------------------
+    # 3. Embed & upsert in batches
+    # ------------------------------------------------------------------
+    log.info("=" * 60)
+    log.info("EMBEDDING & UPSERTING (%d chunks)", len(chunks))
+    log.info("=" * 60)
+
+    total_upserted = 0
+
+    for batch_start in range(0, len(chunks), EMBED_BATCH_SIZE):
+        batch = chunks[batch_start : batch_start + EMBED_BATCH_SIZE]
+        texts = [c.get("text", "") for c in batch]
+        batch_num = batch_start // EMBED_BATCH_SIZE + 1
+        total_batches = (len(chunks) + EMBED_BATCH_SIZE - 1) // EMBED_BATCH_SIZE
+
+        # Generate embeddings via Pinecone Inference API
         try:
-            await vectorstore.aadd_documents(batch)
-            log_success(
-                f"VectorStore Indexing: Successfully added batch {batch_num}/{len(batches)} ({len(batch)} documents)"
+            embeddings = pc.inference.embed(
+                model=EMBEDDING_MODEL,
+                inputs=texts,
+                parameters={"input_type": "passage", "truncate": "END"},
             )
-        except Exception as e:
-            log_error(f"VectorStore Indexing: Failed to add batch {batch_num} - {e}")
-            return False
-        return True
-
-    # Process batches concurrently
-    tasks = [add_batch(batch, i + 1) for i, batch in enumerate(batches)]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-
-    # Count successful batches
-    successful = sum(1 for result in results if result is True)
-
-    if successful == len(batches):
-        log_success(
-            f"VectorStore Indexing: All batches processed successfully! ({successful}/{len(batches)})"
-        )
-    else:
-        log_warning(
-            f"VectorStore Indexing: Processed {successful}/{len(batches)} batches successfully"
-        )
-
-
-async def main():
-    """Main async function to orchestrate the entire process."""
-    log_header("DOCUMENTATION INGESTION PIPELINE")
-
-    log_info(
-        "🗺️  TavilyCrawl: Starting to crawl the documentation site",
-        Colors.PURPLE,
-    )
-    # Crawl the documentation site
-
-    res = tavily_crawl.invoke(
-        {
-            "url": "https://python.langchain.com/",
-            "max_depth": 2,
-            "extract_depth": "advanced",
-        }
-    )
-
-    # Convert Tavily crawl results to LangChain Document objects
-    all_docs = []
-    for tavily_crawl_result_item in res["results"]:
-        log_info(
-            f"TavilyCrawl: Successfully crawled {tavily_crawl_result_item['url']} from documentation site"
-        )
-        all_docs.append(
-            Document(
-                page_content=tavily_crawl_result_item["raw_content"],
-                metadata={"source": tavily_crawl_result_item["url"]},
+        except Exception as exc:
+            log.error(
+                "Embedding failed for batch %d/%d – %s", batch_num, total_batches, exc
             )
+            continue
+
+        # Build vector dicts for upsert
+        vectors = []
+        for chunk, emb in zip(batch, embeddings):
+            vectors.append(
+                {
+                    "id": chunk["chunk_id"],
+                    "values": emb["values"],
+                    "metadata": build_metadata(chunk),
+                }
+            )
+
+        # Upsert in sub-batches
+        for upsert_start in range(0, len(vectors), UPSERT_BATCH_SIZE):
+            upsert_batch = vectors[upsert_start : upsert_start + UPSERT_BATCH_SIZE]
+            try:
+                index.upsert(vectors=upsert_batch)
+                total_upserted += len(upsert_batch)
+            except Exception as exc:
+                log.error("Upsert failed – %s", exc)
+
+        log.info(
+            "📦  Batch %d/%d – embedded & upserted %d chunks (total: %d/%d)",
+            batch_num,
+            total_batches,
+            len(batch),
+            total_upserted,
+            len(chunks),
         )
 
-    # Split documents into chunks
-    log_header("DOCUMENT CHUNKING PHASE")
-    log_info(
-        f"✂️  Text Splitter: Processing {len(all_docs)} documents with 4000 chunk size and 200 overlap",
-        Colors.YELLOW,
-    )
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=4000, chunk_overlap=200)
-    splitted_docs = text_splitter.split_documents(all_docs)
-    log_success(
-        f"Text Splitter: Created {len(splitted_docs)} chunks from {len(all_docs)} documents"
-    )
-
-    # Process documents asynchronously
-    await index_documents_async(splitted_docs, batch_size=500)
-
-    log_header("PIPELINE COMPLETE")
-    log_success("🎉 Documentation ingestion pipeline finished successfully!")
-    log_info("📊 Summary:", Colors.BOLD)
-    log_info(f"   • Documents extracted: {len(all_docs)}")
-    log_info(f"   • Chunks created: {len(splitted_docs)}")
+    # ------------------------------------------------------------------
+    # 4. Summary
+    # ------------------------------------------------------------------
+    log.info("=" * 60)
+    log.info("PIPELINE COMPLETE")
+    log.info("=" * 60)
+    log.info("🎉  Ingestion finished!")
+    log.info("   • Documents in manifest : %d", len(manifest))
+    log.info("   • Chunks processed      : %d", len(chunks))
+    log.info("   • Vectors upserted      : %d", total_upserted)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    ingest(
+        chunks_path="chunks.jsonl",
+        manifest_path="rag_manifest.jsonl",
+    )
