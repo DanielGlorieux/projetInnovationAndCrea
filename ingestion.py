@@ -34,43 +34,40 @@ EMBED_BATCH_SIZE = 96  # texts per embedding request (Pinecone inference limit)
 UPSERT_BATCH_SIZE = 100  # vectors per upsert request
 
 
-def load_chunks(path: str) -> List[Dict[str, Any]]:
-    """Load chunks from a JSONL file, skipping malformed lines."""
-    chunks: List[Dict[str, Any]] = []
+def _iter_jsonl(path: str):
+    """Yield (lineno, parsed_dict) for each valid JSON object in a JSONL file.
+
+    Handles lines that contain a non-JSON prefix (e.g. BOM or stray text)
+    by looking for the first ``{`` character.
+    """
     with open(path, "r", encoding="utf-8") as fh:
         for lineno, raw_line in enumerate(fh, start=1):
             line = raw_line.strip()
             if not line:
                 continue
-            # Handle possible non-JSON prefix on a line (e.g. BOM or stray text)
             idx = line.find("{")
             if idx == -1:
                 log.warning("Skipping line %d – no JSON object found", lineno)
                 continue
             try:
-                obj = json.loads(line[idx:])
-                chunks.append(obj)
+                yield lineno, json.loads(line[idx:])
             except json.JSONDecodeError as exc:
                 log.warning("Skipping line %d – %s", lineno, exc)
-    return chunks
+
+
+def load_chunks(path: str) -> List[Dict[str, Any]]:
+    """Load chunks from a JSONL file, skipping malformed lines."""
+    return [obj for _, obj in _iter_jsonl(path)]
 
 
 def load_manifest(path: str) -> Dict[str, Dict[str, Any]]:
     """Load the document manifest into a dict keyed by document_id."""
     manifest: Dict[str, Dict[str, Any]] = {}
-    with open(path, "r", encoding="utf-8") as fh:
-        for lineno, raw_line in enumerate(fh, start=1):
-            line = raw_line.strip()
-            if not line:
-                continue
-            idx = line.find("{")
-            if idx == -1:
-                continue
-            try:
-                obj = json.loads(line[idx:])
-                manifest[obj["document_id"]] = obj
-            except (json.JSONDecodeError, KeyError) as exc:
-                log.warning("Manifest line %d skipped – %s", lineno, exc)
+    for lineno, obj in _iter_jsonl(path):
+        try:
+            manifest[obj["document_id"]] = obj
+        except KeyError:
+            log.warning("Manifest line %d skipped – missing document_id", lineno)
     return manifest
 
 
