@@ -123,7 +123,7 @@ projetLLMDocumentationHelperDaniel-master/
 ```bash
 curl -X POST http://localhost:5000/api/chat \
   -H "Content-Type: application/json" \
-  -d '{"query": "Qu est-ce que LangChain ?", "chat_history": []}'
+  -d '{"query": "Qu'\''est-ce que LangChain ?", "chat_history": []}'
 ```
 
 ---
