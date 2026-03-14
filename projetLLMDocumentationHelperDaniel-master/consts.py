@@ -1,1 +1,1 @@
-INDEX_NAME = "test1"
+INDEX_NAME = "proj-rag"
