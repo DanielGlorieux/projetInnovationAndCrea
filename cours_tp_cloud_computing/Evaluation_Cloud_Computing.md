@@ -61,7 +61,7 @@
 
 - [ ] a) `docker start nginx -p 8080:80`
 - [ ] b) `docker run -d -p 8080:80 nginx`
-- [ ] c) `docker pull nginx --port 8080`
+- [ ] c) `docker pull nginx -p 8080:80`
 - [ ] d) `docker create -p 80:8080 nginx`
 
 **Question 8 :** Quel outil est utilisé pour l'Infrastructure as Code (IaC) ?
@@ -125,7 +125,14 @@ La **Banque Nationale du Burkina Faso (BNBF)** souhaite moderniser son système 
 - Le ou les services spécifiques d'un fournisseur (AWS, Azure ou GCP)
 - La justification de votre choix
 
-Présentez votre réponse sous forme de tableau.
+Présentez votre réponse sous forme de tableau en suivant le modèle ci-dessous :
+
+| Besoin | Type de service (IaaS/PaaS/SaaS) | Service(s) proposé(s) | Justification |
+|--------|----------------------------------|----------------------|---------------|
+| Application bancaire | ... | ... | ... |
+| Portail client | ... | ... | ... |
+| Stockage documents | ... | ... | ... |
+| Analyse de données | ... | ... | ... |
 
 **Question 18 (4 points) :** Détaillez la **stratégie de sécurité** que vous mettriez en place pour cette banque. Votre réponse doit couvrir :
 - La gestion des accès et des identités
@@ -255,6 +262,8 @@ Méthode recommandée : **Conteneurisation** avec déploiement Zero Downtime.
 - Continuité assurée par le load balancer qui redirige le trafic de manière transparente.
 
 **Q20 – Estimation des coûts :**
+
+> *Note : Les estimations ci-dessous sont indicatives et basées sur les tarifs publics approximatifs des fournisseurs cloud. Les coûts réels varient selon la région, la période et les négociations commerciales. Il est recommandé d'utiliser les calculateurs de coûts officiels (AWS Pricing Calculator, Azure Pricing Calculator, GCP Pricing Calculator) pour une estimation précise.*
 
 | Composant | Service | Modèle de facturation | Coût estimé/mois |
 |-----------|---------|----------------------|-----------------|
