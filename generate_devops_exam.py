@@ -25,17 +25,18 @@ def create_devops_exam():
     
     # Extraction du contenu des PDFs
     print("Extraction du contenu des cours...")
-    cours_path = r"C:\Users\danie\Desktop\ProjetInno\DevOps\Cours_DevOps.pdf"
-    ppt_path = r"C:\Users\danie\Desktop\ProjetInno\DevOps\PPT_DevOps.pdf"
-    
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    cours_path = os.path.join(base_dir, "DevOps", "Cours_DevOps.pdf")
+    ppt_path = os.path.join(base_dir, "DevOps", "PPT_DevOps.pdf")
+
     cours_text = extract_pdf_text(cours_path)
     ppt_text = extract_pdf_text(ppt_path)
-    
+
     print(f"Cours extrait: {len(cours_text)} caractères")
     print(f"PPT extrait: {len(ppt_text)} caractères")
-    
+
     # Création du document PDF d'examen
-    output_path = r"C:\Users\danie\Desktop\ProjetInno\Examen_DevOps.pdf"
+    output_path = os.path.join(base_dir, "Examen_DevOps.pdf")
     doc = SimpleDocTemplate(output_path, pagesize=A4,
                            rightMargin=2*cm, leftMargin=2*cm,
                            topMargin=2*cm, bottomMargin=2*cm)
