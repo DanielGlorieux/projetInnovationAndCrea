@@ -1,0 +1,505 @@
+﻿Summary,Issue Type,Priority,Description,Epic Link,Story Points,Labels,Component,Assignee,Reporter,Sprint,Status,Original Estimate
+[EPIC] Analyse et Détection d'Erreurs,Epic,High,"Vision: Permettre au système d'analyser automatiquement le code source et de détecter les erreurs courantes (syntaxe, logique, style).
+
+Objectif Principal: Fournir un moteur d'analyse robuste capable d'identifier rapidement les problèmes dans le code des étudiants.
+
+Valeur Métier: Gagner du temps pour les enseignants en automatisant la première phase de correction.
+
+Hypothèses:
+- Le système supporte Python 3.8+
+- Les fichiers font moins de 1000 lignes
+- Temps de traitement < 5 secondes
+
+Risques:
+- Complexité des AST
+- Faux positifs
+- Performance sur gros fichiers",,34,"epic,analyse,detection",Backend,,,,To Do,
+[EPIC] Correction Automatique,Epic,High,"Vision: Fournir des suggestions de correction automatique intelligentes pour les erreurs détectées.
+
+Objectif Principal: Permettre aux étudiants de corriger rapidement leur code avec des suggestions contextuelles.
+
+Valeur Métier: Accélérer l'apprentissage en fournissant un feedback immédiat et actionnable.
+
+Hypothèses:
+- Les corrections proposées sont valides à 95%
+- L'étudiant peut accepter/refuser les suggestions
+- Prévisualisation avant application
+
+Risques:
+- Corrections incorrectes
+- Complexité des refactorings
+- Régression de code fonctionnel",,21,"epic,correction,automation",Backend,,,,To Do,
+[EPIC] Feedback Pédagogique,Epic,Medium,"Vision: Générer des retours personnalisés et pédagogiques pour aider les étudiants à progresser.
+
+Objectif Principal: Créer un système de feedback intelligent qui s'adapte au niveau de l'étudiant.
+
+Valeur Métier: Améliorer l'engagement des étudiants et mesurer leur évolution dans le temps.
+
+Hypothèses:
+- Les données de progression sont stockées
+- Les étudiants consultent régulièrement leur dashboard
+- Les métriques sont motivantes
+
+Risques:
+- Surcharge d'informations
+- Comparaisons démotivantes
+- Protection des données personnelles",,21,"epic,feedback,pedagogie",Frontend,,,,To Do,
+[EPIC] Infrastructure et DevOps,Epic,Medium,"Vision: Mettre en place une infrastructure robuste et scalable pour héberger l'application.
+
+Objectif Principal: Garantir la disponibilité, performance et sécurité de l'application.
+
+Valeur Métier: Assurer une expérience utilisateur fluide et fiable.
+
+Hypothèses:
+- Déploiement cloud (AWS/Azure/GCP)
+- CI/CD automatisé
+- Monitoring 24/7
+
+Risques:
+- Coûts d'infrastructure
+- Complexité DevOps
+- Temps de déploiement",,13,"epic,infrastructure,devops",DevOps,,,,To Do,
+[US] Parser le Code Source Python,Story,High,"En tant que système, je veux parser le code source Python afin de créer un AST (Abstract Syntax Tree) exploitable.
+
+Critères d'acceptation:
+- Le système peut lire un fichier .py depuis le système de fichiers
+- Un AST est généré avec succès pour du code valide
+- Les erreurs de parsing sont capturées et reportées clairement
+- Supporte Python 3.8, 3.9, 3.10, 3.11
+- Gestion des encodages (UTF-8, ASCII, Latin-1)
+- Temps de parsing < 1 seconde pour 500 lignes
+
+Notes techniques:
+- Utiliser le module 'ast' de Python
+- Gérer les exceptions SyntaxError
+- Encoder les positions des erreurs (ligne, colonne)",[EPIC] Analyse et Détection d'Erreurs,5,"user-story,parsing,ast",Backend,,,,To Do,8h
+[US] Détecter les Erreurs de Syntaxe,Story,High,"En tant qu'enseignant, je veux que les erreurs de syntaxe soient détectées afin de les signaler clairement aux étudiants.
+
+Critères d'acceptation:
+- Les parenthèses/crochets/accolades non fermés sont détectés
+- Les indentations incorrectes sont identifiées
+- La position exacte de l'erreur est fournie (ligne, colonne)
+- Un message d'erreur clair et pédagogique est généré
+- Détection des deux-points manquants (if, for, def, etc.)
+- Identification des quotes non fermées",[EPIC] Analyse et Détection d'Erreurs,3,"user-story,syntax,validation",Backend,,,,To Do,5h
+[US] Identifier les Variables Non Définies,Story,High,"En tant que système, je veux détecter les variables utilisées mais non définies afin d'éviter les erreurs NameError à l'exécution.
+
+Critères d'acceptation:
+- Les variables utilisées mais non définies sont listées
+- Le numéro de ligne exact est précisé
+- Les faux positifs sont minimisés (<5%)
+- Gestion correcte du scope des variables (local, global, nonlocal)
+- Détection dans les fonctions et classes
+- Gestion des imports et variables built-in",[EPIC] Analyse et Détection d'Erreurs,5,"user-story,variables,scope",Backend,,,,To Do,8h
+[US] Détecter les Imports Inutilisés,Story,Medium,"En tant qu'enseignant, je veux identifier les imports non utilisés afin d'encourager un code propre et maintenable.
+
+Critères d'acceptation:
+- Tous les imports (import, from...import) sont analysés
+- Les imports non référencés dans le code sont identifiés
+- Liste claire avec ligne de chaque import inutilisé
+- Distinction import module vs import fonction/classe
+- Gestion des imports avec alias (as)
+- Suggestion de suppression automatique",[EPIC] Analyse et Détection d'Erreurs,2,"user-story,imports,cleanup",Backend,,,,To Do,3h
+[US] Analyser la Complexité Cyclomatique,Story,Medium,"En tant qu'enseignant, je veux mesurer la complexité cyclomatique du code afin d'identifier les fonctions trop complexes.
+
+Critères d'acceptation:
+- Calcul du score de complexité pour chaque fonction
+- Alerte si complexité > 10
+- Rapport détaillé par fonction
+- Suggestions de refactoring
+- Intégration dans le score de qualité",[EPIC] Analyse et Détection d'Erreurs,3,"user-story,complexity,metrics",Backend,,,,To Do,5h
+[US] Détecter le Code Mort,Story,Low,"En tant que développeur, je veux identifier le code mort (dead code) afin de nettoyer le projet.
+
+Critères d'acceptation:
+- Détection des fonctions jamais appelées
+- Identification du code après return
+- Détection des branches if/else inaccessibles
+- Rapport avec numéros de ligne
+- Suggestions de suppression",[EPIC] Analyse et Détection d'Erreurs,3,"user-story,dead-code,cleanup",Backend,,,,To Do,5h
+[US] Valider la Conformité PEP8,Story,Medium,"En tant qu'enseignant, je veux vérifier la conformité PEP8 afin d'encourager les bonnes pratiques.
+
+Critères d'acceptation:
+- Vérification de l'indentation (4 espaces)
+- Longueur de ligne max 79 caractères
+- Espaces autour des opérateurs
+- Nommage des variables (snake_case)
+- Imports organisés correctement
+- Rapport détaillé avec suggestions",[EPIC] Analyse et Détection d'Erreurs,5,"user-story,pep8,style",Backend,,,,To Do,8h
+[US] Détecter les Docstrings Manquantes,Story,Low,"En tant qu'enseignant, je veux identifier les fonctions sans docstring afin d'encourager la documentation.
+
+Critères d'acceptation:
+- Détection des fonctions/classes sans docstring
+- Vérification du format des docstrings (Google/NumPy/Sphinx)
+- Liste des fonctions à documenter
+- Suggestion de template de docstring
+- Score de documentation",[EPIC] Analyse et Détection d'Erreurs,2,"user-story,documentation,docstring",Backend,,,,To Do,3h
+[US] Analyser les Dépendances du Code,Story,Medium,"En tant que système, je veux analyser les dépendances entre modules afin de détecter les couplages problématiques.
+
+Critères d'acceptation:
+- Graphe des dépendances généré
+- Détection des imports circulaires
+- Identification des modules fortement couplés
+- Visualisation du graphe
+- Suggestions de découplage",[EPIC] Analyse et Détection d'Erreurs,5,"user-story,dependencies,architecture",Backend,,,,To Do,8h
+[US] Détecter les Erreurs de Type (Type Hints),Story,Medium,"En tant que développeur, je veux valider les type hints afin de prévenir les erreurs de type.
+
+Critères d'acceptation:
+- Vérification des annotations de type
+- Détection des incohérences de type
+- Support de mypy/pyright
+- Rapport des erreurs de type
+- Suggestions de correction",[EPIC] Analyse et Détection d'Erreurs,5,"user-story,typing,type-hints",Backend,,,,To Do,8h
+[US] Corriger les Indentations Automatiquement,Story,High,"En tant qu'étudiant, je veux que mes erreurs d'indentation soient corrigées automatiquement afin de respecter PEP8.
+
+Critères d'acceptation:
+- Indentation à 4 espaces appliquée partout (PEP8)
+- Conversion automatique des tabs en 4 espaces
+- Cohérence dans tout le fichier
+- Option pour prévisualiser avant application
+- Préservation de la logique du code
+- Backup automatique du fichier original",[EPIC] Correction Automatique,3,"user-story,indentation,formatting",Backend,,,,To Do,5h
+[US] Corriger les Noms de Variables,Story,Medium,"En tant qu'étudiant, je veux recevoir des suggestions pour renommer mes variables afin de respecter les conventions Python.
+
+Critères d'acceptation:
+- Détection des noms non conformes (camelCase, PascalCase)
+- Suggestions de noms plus descriptifs
+- Refactoring automatique possible (renommer partout)
+- Respect de PEP8 (snake_case)
+- Conservation des constantes en MAJUSCULES
+- Détection des noms réservés",[EPIC] Correction Automatique,5,"user-story,naming,refactoring",Backend,,,,To Do,8h
+[US] Auto-complétion des Imports,Story,Medium,"En tant qu'étudiant, je veux que les imports manquants soient suggérés afin de corriger rapidement mon code.
+
+Critères d'acceptation:
+- Détection des symboles utilisés mais non importés
+- Suggestion de l'import approprié
+- Ajout automatique de l'import en haut du fichier
+- Organisation alphabétique des imports
+- Gestion des imports relatifs vs absolus",[EPIC] Correction Automatique,3,"user-story,imports,autocomplete",Backend,,,,To Do,5h
+[US] Suggérer des Compréhensions de Liste,Story,Low,"En tant qu'étudiant, je veux recevoir des suggestions pour utiliser les compréhensions de liste afin d'écrire du code plus pythonique.
+
+Critères d'acceptation:
+- Détection des boucles for convertibles en compréhension
+- Affichage de la version optimisée
+- Explication pédagogique de l'amélioration
+- Comparaison de performance (si significative)
+- Gestion des conditions (if)
+- Warning si compréhension trop complexe",[EPIC] Correction Automatique,5,"user-story,comprehension,optimization",Backend,,,,To Do,8h
+[US] Corriger les Erreurs de Quotes,Story,Low,"En tant qu'étudiant, je veux que mes erreurs de quotes soient corrigées afin d'avoir un code cohérent.
+
+Critères d'acceptation:
+- Détection des strings avec quotes mixtes
+- Standardisation sur simple quotes (') ou double quotes
+- Gestion des f-strings
+- Échappement automatique si nécessaire
+- Preview avant application",[EPIC] Correction Automatique,2,"user-story,strings,formatting",Backend,,,,To Do,3h
+[US] Optimiser les Boucles,Story,Medium,"En tant qu'étudiant, je veux recevoir des suggestions d'optimisation de boucles afin d'améliorer la performance.
+
+Critères d'acceptation:
+- Détection des boucles inefficaces
+- Suggestion d'utiliser enumerate() au lieu de range(len())
+- Suggestion de zip() pour itérer sur plusieurs listes
+- Remplacement de boucles par fonctions built-in (sum, any, all)
+- Explications pédagogiques",[EPIC] Correction Automatique,3,"user-story,optimization,loops",Backend,,,,To Do,5h
+[US] Générer des Tests Unitaires,Story,Medium,"En tant que développeur, je veux générer automatiquement des squelettes de tests unitaires afin de faciliter le TDD.
+
+Critères d'acceptation:
+- Génération de tests pour chaque fonction
+- Support pytest et unittest
+- Création de fixtures basiques
+- Cas de test nominaux et d'erreur
+- Assertions pré-remplies avec TODOs",[EPIC] Correction Automatique,8,"user-story,testing,automation",Backend,,,,To Do,13h
+[US] Refactoring de Fonctions Longues,Story,Medium,"En tant que développeur, je veux identifier et refactorer les fonctions trop longues afin d'améliorer la lisibilité.
+
+Critères d'acceptation:
+- Détection des fonctions > 50 lignes
+- Suggestions de découpage en sous-fonctions
+- Extraction automatique de blocs logiques
+- Noms de fonctions suggestifs
+- Preview du refactoring",[EPIC] Correction Automatique,5,"user-story,refactoring,clean-code",Backend,,,,To Do,8h
+[US] Corriger les Erreurs Courantes de Débutants,Story,High,"En tant qu'enseignant, je veux que le système corrige les erreurs courantes de débutants afin de faciliter l'apprentissage.
+
+Critères d'acceptation:
+- Détection de l'utilisation de == au lieu de = pour assignation
+- Correction de l'indentation après :
+- Suggestion d'utiliser is pour None au lieu de ==
+- Détection de l'appel de print sans parenthèses (Python 2)
+- Messages pédagogiques adaptés aux débutants",[EPIC] Correction Automatique,3,"user-story,beginner,education",Backend,,,,To Do,5h
+[US] Formater le Code avec Black,Story,Medium,"En tant qu'étudiant, je veux formater automatiquement mon code avec Black afin d'avoir un style cohérent.
+
+Critères d'acceptation:
+- Intégration de Black formatter
+- Application automatique du formatage
+- Configuration personnalisable (line length)
+- Preview avant application
+- Rapport des changements effectués",[EPIC] Correction Automatique,2,"user-story,formatting,black",Backend,,,,To Do,3h
+[US] Générer un Score de Qualité,Story,High,"En tant qu'enseignant, je veux attribuer un score de qualité au code afin d'évaluer objectivement le travail.
+
+Critères d'acceptation:
+- Score sur 100 points
+- Critères: syntaxe (25%), style (25%), logique (25%), complexité (25%)
+- Pondération configurable
+- Détail par catégorie avec justification
+- Évolution du score visible dans le temps
+- Seuils: Excellent (>85), Bon (70-85), Moyen (50-70), Faible (<50)",[EPIC] Feedback Pédagogique,8,"user-story,scoring,evaluation",Backend,,,,To Do,13h
+[US] Afficher l'Historique des Corrections,Story,Medium,"En tant qu'étudiant, je veux voir l'historique de mes corrections afin de ne pas répéter les mêmes erreurs.
+
+Critères d'acceptation:
+- Liste chronologique des soumissions (plus récent d'abord)
+- Comparaison avant/après pour chaque correction
+- Statistiques d'amélioration (score, erreurs résolues)
+- Filtrage par date, type d'erreur
+- Export en PDF pour portfolio
+- Pagination (50 dernières soumissions)",[EPIC] Feedback Pédagogique,5,"user-story,history,tracking",Frontend,,,,To Do,8h
+[US] Générer des Graphiques de Progression,Story,Medium,"En tant qu'étudiant, je veux visualiser ma progression avec des graphiques afin de me motiver.
+
+Critères d'acceptation:
+- Graphique d'évolution du score dans le temps (line chart)
+- Répartition des types d'erreurs (pie chart)
+- Comparaison avec la moyenne de la classe (bar chart)
+- Évolution du nombre d'erreurs (area chart)
+- Interface interactive (zoom, hover tooltips)
+- Export des graphiques en PNG/SVG",[EPIC] Feedback Pédagogique,3,"user-story,charts,visualization",Frontend,,,,To Do,5h
+[US] Dashboard Enseignant,Story,High,"En tant qu'enseignant, je veux un dashboard récapitulatif afin de suivre la progression de tous mes étudiants.
+
+Critères d'acceptation:
+- Vue d'ensemble de la classe
+- Scores moyens par exercice
+- Identification des étudiants en difficulté
+- Erreurs les plus fréquentes de la classe
+- Export des statistiques en Excel/CSV
+- Filtres par groupe, exercice, période",[EPIC] Feedback Pédagogique,8,"user-story,dashboard,teacher",Frontend,,,,To Do,13h
+[US] Recommandations Personnalisées,Story,Medium,"En tant qu'étudiant, je veux recevoir des recommandations personnalisées afin de progresser efficacement.
+
+Critères d'acceptation:
+- Analyse des erreurs récurrentes de l'étudiant
+- Suggestions de ressources (tutoriels, exercices)
+- Plan d'amélioration personnalisé
+- Objectifs SMART définis
+- Suivi de la progression sur les objectifs",[EPIC] Feedback Pédagogique,5,"user-story,recommendations,ai",Backend,,,,To Do,8h
+[US] Badges et Achievements,Story,Low,"En tant qu'étudiant, je veux débloquer des badges afin de rester motivé dans mon apprentissage.
+
+Critères d'acceptation:
+- Système de badges pour accomplissements
+- Badges: Premier code parfait, 10 corrections, Semaine sans erreur, etc.
+- Affichage des badges sur le profil
+- Notifications de déblocage
+- Classement optionnel (leaderboard)",[EPIC] Feedback Pédagogique,3,"user-story,gamification,badges",Frontend,,,,To Do,5h
+[US] Rapport Détaillé PDF,Story,Medium,"En tant qu'étudiant, je veux générer un rapport PDF détaillé afin de conserver une trace de mon travail.
+
+Critères d'acceptation:
+- Export PDF avec logo et mise en forme
+- Résumé du code soumis
+- Liste des erreurs et corrections
+- Score de qualité détaillé
+- Graphiques de progression
+- Recommandations personnalisées",[EPIC] Feedback Pédagogique,5,"user-story,pdf,export",Backend,,,,To Do,8h
+[US] Notifications par Email,Story,Low,"En tant qu'étudiant, je veux recevoir des notifications par email afin d'être informé de mes résultats.
+
+Critères d'acceptation:
+- Email après chaque soumission
+- Résumé du score et des erreurs principales
+- Lien vers le rapport détaillé
+- Fréquence configurable (immédiat, quotidien, hebdomadaire)
+- Option de désabonnement",[EPIC] Feedback Pédagogique,2,"user-story,email,notifications",Backend,,,,To Do,3h
+[US] Commentaires Inline dans le Code,Story,High,"En tant qu'étudiant, je veux voir des commentaires inline dans mon code afin de comprendre mes erreurs en contexte.
+
+Critères d'acceptation:
+- Annotations directement dans le code
+- Explications pédagogiques claires
+- Code suggestions avec diff
+- Sévérité (erreur, warning, info)
+- Liens vers documentation Python",[EPIC] Feedback Pédagogique,5,"user-story,annotations,inline",Frontend,,,,To Do,8h
+[US] Comparaison de Solutions,Story,Medium,"En tant qu'étudiant, je veux comparer ma solution avec une solution optimale afin d'apprendre les meilleures pratiques.
+
+Critères d'acceptation:
+- Affichage côte à côte de ma solution et solution de référence
+- Highlighting des différences
+- Explications des choix de la solution optimale
+- Comparaison de performance
+- Niveau de difficulté adaptatif",[EPIC] Feedback Pédagogique,5,"user-story,comparison,learning",Frontend,,,,To Do,8h
+[US] Setup CI/CD Pipeline,Story,High,"En tant que DevOps, je veux mettre en place un pipeline CI/CD afin d'automatiser les déploiements.
+
+Critères d'acceptation:
+- Pipeline GitLab CI ou GitHub Actions
+- Build automatique sur push
+- Tests automatiques (unit, integration)
+- Déploiement automatique en staging
+- Déploiement manuel en production
+- Notifications Slack/Teams",[EPIC] Infrastructure et DevOps,5,"user-story,cicd,automation",DevOps,,,,To Do,8h
+[US] Conteneurisation Docker,Story,High,"En tant que DevOps, je veux conteneuriser l'application afin de garantir la portabilité.
+
+Critères d'acceptation:
+- Dockerfile pour backend Python
+- Dockerfile pour frontend
+- Docker Compose pour développement local
+- Images optimisées (multi-stage build)
+- Documentation de déploiement
+- Registry Docker (Docker Hub ou privé)",[EPIC] Infrastructure et DevOps,5,"user-story,docker,containers",DevOps,,,,To Do,8h
+[US] Monitoring et Alertes,Story,High,"En tant que DevOps, je veux monitorer l'application afin de détecter rapidement les problèmes.
+
+Critères d'acceptation:
+- Prometheus pour métriques
+- Grafana pour dashboards
+- Alerting configuré (Slack, email)
+- Métriques: CPU, RAM, requests/s, latency
+- Logs centralisés (ELK ou Loki)
+- Uptime monitoring",[EPIC] Infrastructure et DevOps,8,"user-story,monitoring,observability",DevOps,,,,To Do,13h
+[US] Base de Données PostgreSQL,Story,High,"En tant que développeur, je veux utiliser PostgreSQL afin de stocker les données de manière fiable.
+
+Critères d'acceptation:
+- PostgreSQL déployé
+- Schéma de base de données défini
+- Migrations avec Alembic/Flyway
+- Backups automatiques quotidiens
+- Réplication master-slave
+- Connection pooling",[EPIC] Infrastructure et DevOps,5,"user-story,database,postgresql",Backend,,,,To Do,8h
+[US] Cache Redis,Story,Medium,"En tant que développeur, je veux utiliser Redis pour le caching afin d'améliorer les performances.
+
+Critères d'acceptation:
+- Redis déployé et configuré
+- Cache des résultats d'analyse
+- Cache des statistiques
+- TTL configurable
+- Invalidation de cache
+- Monitoring du hit rate",[EPIC] Infrastructure et DevOps,3,"user-story,redis,cache",Backend,,,,To Do,5h
+[US] API REST Documentation,Story,Medium,"En tant que développeur, je veux une documentation API interactive afin de faciliter l'intégration.
+
+Critères d'acceptation:
+- Swagger/OpenAPI 3.0
+- Documentation générée automatiquement
+- Exemples de requêtes/réponses
+- Try it out fonctionnel
+- Authentification documentée
+- Versionning de l'API",[EPIC] Infrastructure et DevOps,3,"user-story,api,documentation",Backend,,,,To Do,5h
+[US] Authentification JWT,Story,High,"En tant qu'utilisateur, je veux m'authentifier de manière sécurisée afin de protéger mes données.
+
+Critères d'acceptation:
+- Authentification par JWT
+- Login avec email/mot de passe
+- Tokens avec expiration
+- Refresh tokens
+- Logout sécurisé
+- Rate limiting sur login",[EPIC] Infrastructure et DevOps,5,"user-story,auth,security",Backend,,,,To Do,8h
+[US] Tests End-to-End,Story,Medium,"En tant que QA, je veux des tests E2E automatisés afin de garantir la qualité de l'application.
+
+Critères d'acceptation:
+- Tests avec Selenium ou Cypress
+- Scénarios principaux couverts
+- Exécution dans le CI
+- Screenshots sur échec
+- Rapports HTML
+- Tests sur différents navigateurs",[EPIC] Infrastructure et DevOps,8,"user-story,testing,e2e",QA,,,,To Do,13h
+[US] Gestion des Erreurs Globale,Story,Medium,"En tant que développeur, je veux une gestion centralisée des erreurs afin d'améliorer le debugging.
+
+Critères d'acceptation:
+- Sentry ou equivalent configuré
+- Capture automatique des exceptions
+- Stack traces complètes
+- Contexte utilisateur capturé
+- Alertes sur erreurs critiques
+- Dashboard des erreurs",[EPIC] Infrastructure et DevOps,3,"user-story,error-handling,monitoring",Backend,,,,To Do,5h
+[US] Internationalisation (i18n),Story,Low,"En tant qu'utilisateur, je veux utiliser l'application dans ma langue afin d'améliorer l'expérience.
+
+Critères d'acceptation:
+- Support Français et Anglais
+- Fichiers de traduction JSON/PO
+- Détection automatique de la langue
+- Sélecteur de langue
+- Traduction de tous les messages
+- Date/heure localisées",[EPIC] Infrastructure et DevOps,5,"user-story,i18n,localization",Frontend,,,,To Do,8h
+[BUG] Parser crashe sur fichiers UTF-16,Bug,High,"Environnement:
+- OS: Windows 10
+- Python: 3.11
+- Version: 1.0.0
+
+Comportement attendu:
+Le parser devrait gérer tous les encodages courants y compris UTF-16.
+
+Comportement observé:
+Le parser crashe avec une UnicodeDecodeError sur les fichiers UTF-16.
+
+Étapes pour reproduire:
+1. Créer un fichier .py en UTF-16
+2. Soumettre le fichier pour analyse
+3. Observer le crash
+
+Logs:
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0
+
+Impact: Bloquant pour certains utilisateurs Windows
+
+Workaround: Convertir manuellement le fichier en UTF-8",,3,"bug,parser,encoding",Backend,,,,To Do,5h
+[BUG] Faux positifs sur variables de compréhensions,Bug,Medium,"Environnement:
+- Python: 3.10
+- Module: Variable analyzer
+
+Comportement attendu:
+Les variables de compréhension ne devraient pas être signalées comme non définies.
+
+Comportement observé:
+Le système signale les variables de compréhension comme non définies.
+
+Exemple:
+squares = [x**2 for x in range(10)]
+# x est signalé comme non défini
+
+Impact: Majeur - Génère de la confusion
+
+User Story liée: [US] Identifier les Variables Non Définies",,2,"bug,false-positive,comprehension",Backend,,,,To Do,3h
+[BUG] Dashboard ne charge pas avec 1000+ soumissions,Bug,High,"Environnement:
+- Navigateur: Chrome 120
+- OS: Windows/Mac
+- Version: 1.0.0
+
+Comportement attendu:
+Le dashboard devrait charger même avec beaucoup de données.
+
+Comportement observé:
+Le dashboard freeze et crash du navigateur avec 1000+ soumissions.
+
+Étapes pour reproduire:
+1. Avoir un compte avec 1000+ soumissions
+2. Accéder au dashboard
+3. Observer le freeze
+
+Impact: Bloquant pour utilisateurs actifs
+
+Solution proposée: Pagination et lazy loading",,5,"bug,performance,frontend",Frontend,,,,To Do,8h
+[BUG] Score de qualité négatif dans certains cas,Bug,High,"Environnement:
+- Python: 3.11
+- Module: Quality scorer
+
+Comportement attendu:
+Le score devrait toujours être entre 0 et 100.
+
+Comportement observé:
+Le score peut devenir négatif quand il y a beaucoup d'erreurs.
+
+Exemple:
+Code avec 50 erreurs -> Score: -23
+
+Impact: Bloquant - Calcul incorrect
+
+User Story liée: [US] Générer un Score de Qualité
+
+Fix: Ajouter max(0, score) dans le calcul",,1,"bug,scoring,calculation",Backend,,,,To Do,2h
+[BUG] Notifications email envoyées en double,Bug,Low,"Environnement:
+- Service: Email sender
+- Queue: RabbitMQ
+
+Comportement attendu:
+Une seule notification par soumission.
+
+Comportement observé:
+Certains utilisateurs reçoivent 2 emails pour la même soumission.
+
+Étapes pour reproduire:
+1. Soumettre un fichier
+2. Vérifier les emails
+3. Observer parfois 2 emails identiques
+
+Impact: Mineur - Gênant mais pas bloquant
+
+Fréquence: ~5% des cas
+
+Workaround: Désactiver les notifications",,2,"bug,email,duplication",Backend,,,,To Do,3h
