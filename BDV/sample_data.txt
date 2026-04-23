@@ -1,0 +1,9 @@
+Bonjour, je m'appelle Jean Dupont.
+Mon adresse email est jean.dupont@example.com et mon numéro de téléphone est 06 12 34 56 78.
+Vous pouvez également me joindre au +33 1 23 45 67 89 ou par mail à support@monentreprise.fr.
+  L'intelligence artificielle   est un domaine fascinant!!!
+Les bases de données vectorielles permettent de stocker et rechercher des vecteurs efficacement.
+Contactez notre équipe à info@bdv-cours.org pour plus d'informations.
+Appelez le 07 98 76 54 32 pour un rendez-vous.
+Les embeddings transforment le texte en représentations numériques.
+La similarité cosinus mesure l'angle entre deux vecteurs.
